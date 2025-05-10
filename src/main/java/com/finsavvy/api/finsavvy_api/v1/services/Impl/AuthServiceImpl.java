@@ -2,8 +2,9 @@ package com.finsavvy.api.finsavvy_api.v1.services.Impl;
 
 import com.finsavvy.api.finsavvy_api.v1.dto.TokenDto;
 import com.finsavvy.api.finsavvy_api.v1.dto.UserDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignInDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignUpDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignInRequestDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignUpRequestDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.response.NewUserResponseDto;
 import com.finsavvy.api.finsavvy_api.v1.entities.User;
 import com.finsavvy.api.finsavvy_api.v1.repositories.UserRepository;
 import com.finsavvy.api.finsavvy_api.v1.services.AuthService;
@@ -30,31 +31,35 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
 
 
-    public UserDto signUp(SignUpDto signUpDto) {
-        Optional<User> user = userRepository.findByEmail(signUpDto.getEmail());
+    public NewUserResponseDto signUp(SignUpRequestDto signUpRequestDto) {
+        Optional<User> user = userRepository.findByEmail(signUpRequestDto.getEmail());
 
         if (user.isPresent()){
-            throw new BadCredentialsException("User with email already exists: " + signUpDto.getEmail());
+            throw new BadCredentialsException("User with email already exists: " + signUpRequestDto.getEmail());
         }
 
-        User newUser = modelMapper.map(signUpDto, User.class);
+        User newUser = modelMapper.map(signUpRequestDto, User.class);
         String encodedPassword = passwordEncoder.encode(newUser.getPassword());
         newUser.setPassword(encodedPassword);
 
         User savedUser = userRepository.save(newUser);
+        UserDto newUserDto =  modelMapper.map(savedUser, UserDto.class);
+        TokenDto tokenDto = jwtService.generateTokens(savedUser);
 
-        return modelMapper.map(savedUser, UserDto.class);
+        return NewUserResponseDto.builder()
+                .user(newUserDto)
+                .tokens(tokenDto)
+                .build();
     }
 
-    public TokenDto signIn(SignInDto signInDto) {
+    public TokenDto signIn(SignInRequestDto signInRequestDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        signInDto.getEmail(),
-                        signInDto.getPassword()
+                        signInRequestDto.getEmail(),
+                        signInRequestDto.getPassword()
                 )
         );
         User user = (User) authentication.getPrincipal();
-        String token = jwtService.generateToken(user);
-        return new TokenDto(token);
+        return jwtService.generateTokens(user);
     }
 }

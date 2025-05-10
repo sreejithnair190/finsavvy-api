@@ -37,7 +37,10 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private String fullName;
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
 
     @Enumerated(EnumType.ORDINAL)
     private List<Role> userRoles;

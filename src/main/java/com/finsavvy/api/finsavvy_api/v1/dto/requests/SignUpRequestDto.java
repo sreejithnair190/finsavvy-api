@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignUpDto {
+public class SignUpRequestDto {
 
     @NotNull(message = "Email is required")
     @NotBlank(message = "Email cannot be empty")

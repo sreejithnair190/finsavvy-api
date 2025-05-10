@@ -1,5 +1,6 @@
 package com.finsavvy.api.finsavvy_api.v1.services.Impl;
 
+import com.finsavvy.api.finsavvy_api.v1.dto.TokenDto;
 import com.finsavvy.api.finsavvy_api.v1.entities.User;
 import com.finsavvy.api.finsavvy_api.v1.services.JwtService;
 import io.jsonwebtoken.Claims;
@@ -17,6 +18,9 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.secretKey}")
     private String jwtSecretKey;
 
+    private static final Long ACCESS_TOKEN_EXPIRATION = (long) (1000 * 60 * 10);
+    private static final Long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 30;
+
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
@@ -29,17 +33,27 @@ public class JwtServiceImpl implements JwtService {
                 .getPayload();
     }
 
-    @Override
-    public String generateToken(User user) {
-        return  Jwts.builder()
+    private String buildToken(User user, long expirationMillis) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationMillis);
+
+        return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("email", user.getEmail())
-//                .claim("role", Set.of("ADMIN", "USER"))
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + (1000 * 60 * 10)))
+                .issuedAt(now).expiration(expiryDate)
                 .signWith(getSecretKey())
                 .compact();
+    }
 
+    @Override
+    public TokenDto generateTokens(User user) {
+        String accessToken = this.buildToken(user, ACCESS_TOKEN_EXPIRATION);
+        String refreshToken = this.buildToken(user, REFRESH_TOKEN_EXPIRATION);
+
+        return TokenDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     @Override
