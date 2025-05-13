@@ -1,10 +1,9 @@
 package com.finsavvy.api.finsavvy_api.v1.controllers;
 
-import com.finsavvy.api.finsavvy_api.v1.dto.TokenDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.UserDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignInRequestDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignUpRequestDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.response.NewUserResponseDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.TokenDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.SignInDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.SignUpDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.user.NewUserDto;
 import com.finsavvy.api.finsavvy_api.v1.services.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,12 +27,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<NewUserResponseDto> signUp(
-            @RequestBody @Valid SignUpRequestDto signUpRequestDto,
+    public ResponseEntity<NewUserDto> signUp(
+            @RequestBody @Valid SignUpDto signUpRequestDto,
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse
     ) {
-        NewUserResponseDto newUserResponseDto = authService.signUp(signUpRequestDto);
+        NewUserDto newUserResponseDto = authService.signUp(signUpRequestDto);
         if (newUserResponseDto != null) {
             TokenDto tokenDto = newUserResponseDto.getTokens();
             if (tokenDto != null) {
@@ -48,11 +47,11 @@ public class AuthController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<TokenDto> signIn(
-            @RequestBody @Valid SignInRequestDto signInRequestDto,
+            @RequestBody @Valid SignInDto signInDto,
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse
     ) {
-        TokenDto tokenDto = authService.signIn(signInRequestDto);
+        TokenDto tokenDto = authService.signIn(signInDto);
 
         Cookie cookie = new Cookie("refresh-token", tokenDto.getRefreshToken());
 //        cookie.setHttpOnly(true);

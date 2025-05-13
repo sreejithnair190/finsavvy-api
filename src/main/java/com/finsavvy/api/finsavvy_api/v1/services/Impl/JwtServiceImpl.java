@@ -1,6 +1,6 @@
 package com.finsavvy.api.finsavvy_api.v1.services.Impl;
 
-import com.finsavvy.api.finsavvy_api.v1.dto.TokenDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.TokenDto;
 import com.finsavvy.api.finsavvy_api.v1.entities.User;
 import com.finsavvy.api.finsavvy_api.v1.services.JwtService;
 import io.jsonwebtoken.Claims;

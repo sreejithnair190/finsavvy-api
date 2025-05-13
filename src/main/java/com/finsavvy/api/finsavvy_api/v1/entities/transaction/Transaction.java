@@ -1,6 +1,6 @@
-package com.finsavvy.api.finsavvy_api.v1.entities;
+package com.finsavvy.api.finsavvy_api.v1.entities.transaction;
 
-import com.finsavvy.api.finsavvy_api.v1.enums.AccountRole;
+import com.finsavvy.api.finsavvy_api.v1.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "account_users")
-public class AccountUser {
+@Table(name = "transactions")
+public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,13 +28,24 @@ public class AccountUser {
     private String uuid;
 
     @Column(nullable = false)
-    private Long userId;
-
-    @Column(nullable = false)
     private Long accountId;
 
     @Column(nullable = false)
-    private AccountRole role;
+    private LocalDateTime transactionDate;
+
+    @Column(nullable = false)
+    private Double amount;
+
+    @Column(nullable = false)
+    private String merchant;
+
+    private String description;
+
+    @Column(nullable = false)
+    private TransactionType transactionType;
+
+    @Column(nullable = false)
+    private Long categoryId;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp

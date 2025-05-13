@@ -1,12 +1,11 @@
 package com.finsavvy.api.finsavvy_api.v1.services;
 
-import com.finsavvy.api.finsavvy_api.v1.dto.TokenDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.UserDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignInRequestDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignUpRequestDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.response.NewUserResponseDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.TokenDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.SignInDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.SignUpDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.user.NewUserDto;
 
 public interface AuthService {
-    NewUserResponseDto signUp(SignUpRequestDto signUpRequestDto);
-    TokenDto signIn(SignInRequestDto signInRequestDto);
+    NewUserDto signUp(SignUpDto signUpRequestDto);
+    TokenDto signIn(SignInDto signInDto);
 }

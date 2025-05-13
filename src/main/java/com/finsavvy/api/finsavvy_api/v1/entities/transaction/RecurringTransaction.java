@@ -1,4 +1,4 @@
-package com.finsavvy.api.finsavvy_api.v1.entities;
+package com.finsavvy.api.finsavvy_api.v1.entities.transaction;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

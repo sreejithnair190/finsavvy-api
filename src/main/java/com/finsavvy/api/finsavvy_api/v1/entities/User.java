@@ -1,7 +1,11 @@
 package com.finsavvy.api.finsavvy_api.v1.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.finsavvy.api.finsavvy_api.v1.entities.account.Account;
+import com.finsavvy.api.finsavvy_api.v1.entities.account.AccountUser;
 import com.finsavvy.api.finsavvy_api.v1.enums.Role;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.*;
@@ -19,7 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Table(name = "users")
-@SQLDelete(sql = "UPDATE accounts SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 public class User implements UserDetails {
     @Id
@@ -46,7 +50,7 @@ public class User implements UserDetails {
     private List<Role> userRoles;
 
     @Column(nullable = false, length = 1)
-    private Integer is2FAEnabled = 0;
+    private Boolean is2FAEnabled = false;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
@@ -56,6 +60,13 @@ public class User implements UserDetails {
     private LocalDateTime updatedAt;
 
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Account> accounts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AccountUser> accountUsers;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

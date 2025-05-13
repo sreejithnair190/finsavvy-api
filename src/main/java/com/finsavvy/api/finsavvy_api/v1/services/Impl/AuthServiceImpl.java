@@ -1,10 +1,10 @@
 package com.finsavvy.api.finsavvy_api.v1.services.Impl;
 
-import com.finsavvy.api.finsavvy_api.v1.dto.TokenDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.UserDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignInRequestDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.requests.SignUpRequestDto;
-import com.finsavvy.api.finsavvy_api.v1.dto.response.NewUserResponseDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.TokenDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.user.UserDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.SignInDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.auth.SignUpDto;
+import com.finsavvy.api.finsavvy_api.v1.dto.user.NewUserDto;
 import com.finsavvy.api.finsavvy_api.v1.entities.User;
 import com.finsavvy.api.finsavvy_api.v1.repositories.UserRepository;
 import com.finsavvy.api.finsavvy_api.v1.services.AuthService;
@@ -31,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
 
 
-    public NewUserResponseDto signUp(SignUpRequestDto signUpRequestDto) {
+    public NewUserDto signUp(SignUpDto signUpRequestDto) {
         Optional<User> user = userRepository.findByEmail(signUpRequestDto.getEmail());
 
         if (user.isPresent()){
@@ -46,17 +46,17 @@ public class AuthServiceImpl implements AuthService {
         UserDto newUserDto =  modelMapper.map(savedUser, UserDto.class);
         TokenDto tokenDto = jwtService.generateTokens(savedUser);
 
-        return NewUserResponseDto.builder()
+        return NewUserDto.builder()
                 .user(newUserDto)
                 .tokens(tokenDto)
                 .build();
     }
 
-    public TokenDto signIn(SignInRequestDto signInRequestDto) {
+    public TokenDto signIn(SignInDto signInDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        signInRequestDto.getEmail(),
-                        signInRequestDto.getPassword()
+                        signInDto.getEmail(),
+                        signInDto.getPassword()
                 )
         );
         User user = (User) authentication.getPrincipal();

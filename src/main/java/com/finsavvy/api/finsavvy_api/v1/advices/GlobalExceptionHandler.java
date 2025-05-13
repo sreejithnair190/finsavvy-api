@@ -2,6 +2,7 @@ package com.finsavvy.api.finsavvy_api.v1.advices;
 
 import com.finsavvy.api.finsavvy_api.v1.common.ApiError;
 import com.finsavvy.api.finsavvy_api.v1.common.ApiResponse;
+import com.finsavvy.api.finsavvy_api.v1.exceptions.ResourceAlreadyDeletedException;
 import com.finsavvy.api.finsavvy_api.v1.exceptions.ResourceNotFoundException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,6 +35,15 @@ public class GlobalExceptionHandler {
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.NOT_FOUND)
                 .message(resourceNotFoundException.getMessage())
+                .build();
+        return buildApiErrorResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(ResourceAlreadyDeletedException.class)
+    public ResponseEntity<ApiResponse<?>> handleResourceAlreadyDeletedException(ResourceAlreadyDeletedException resourceAlreadyDeletedException) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .message(resourceAlreadyDeletedException.getMessage())
                 .build();
         return buildApiErrorResponseEntity(apiError);
     }

@@ -1,8 +1,6 @@
-package com.finsavvy.api.finsavvy_api.v1.dto;
+package com.finsavvy.api.finsavvy_api.v1.dto.user;
 
 import com.finsavvy.api.finsavvy_api.v1.enums.Role;
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +18,6 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private List<Role> userRoles;
-    private Integer is2FAEnabled = 0;
+    private Boolean is2FAEnabled;
     private LocalDateTime deletedAt;
 }

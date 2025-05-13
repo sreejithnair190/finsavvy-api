@@ -1,4 +1,4 @@
-package com.finsavvy.api.finsavvy_api.v1.dto.requests;
+package com.finsavvy.api.finsavvy_api.v1.dto.auth;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignUpRequestDto {
+public class SignUpDto {
 
     @NotNull(message = "Email is required")
     @NotBlank(message = "Email cannot be empty")

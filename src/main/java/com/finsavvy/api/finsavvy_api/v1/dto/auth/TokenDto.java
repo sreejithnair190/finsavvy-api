@@ -1,4 +1,4 @@
-package com.finsavvy.api.finsavvy_api.v1.dto;
+package com.finsavvy.api.finsavvy_api.v1.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,18 +1,20 @@
-package com.finsavvy.api.finsavvy_api.v1.entities;
+package com.finsavvy.api.finsavvy_api.v1.entities.account;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.finsavvy.api.finsavvy_api.v1.entities.User;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "accounts")
@@ -23,8 +25,10 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
+    private User owner;
 
     @Column(nullable = false)
     private String name;
@@ -47,4 +51,7 @@ public class Account {
     private LocalDateTime updatedAt;
 
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AccountUser> accountUsers;
 }

@@ -1,6 +1,6 @@
 package com.finsavvy.api.finsavvy_api.v1.repositories;
 
-import com.finsavvy.api.finsavvy_api.v1.entities.Transaction;
+import com.finsavvy.api.finsavvy_api.v1.entities.transaction.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -23,6 +23,17 @@ public class ApiResponse<T> {
         this.data = data;
     }
 
+    public ApiResponse(T data, String message){
+        this();
+        this.message = message;
+        this.data = data;
+    }
+
+    public ApiResponse(String message) {
+        this();
+        this.message = message;
+    }
+
     public ApiResponse(ApiError apiError, String message){
         this();
         this.error = apiError;
