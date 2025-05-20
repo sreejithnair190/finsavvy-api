@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -14,9 +13,8 @@ public class AccountDto {
     private Long id;
     private String uuid;
     private Long userId;
-    private String name;
     private String bankName;
-    private Long currencyId;
     private List<AccountUserDto> accountUsers;
-    private LocalDateTime deletedAt;
+    private BankAccountTypeDto bankAccountType;
+    private CountryCurrencyDto countryCurrency;
 }

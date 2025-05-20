@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewAccountDto {
-    private String name;
     private String bankName;
-    private Long currencyId;
+    private String bankAccountTypeUUID;
+    private String countryCurrencyUUID;
 }

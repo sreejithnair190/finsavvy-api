@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "account_users")
-@SQLDelete(sql = "UPDATE accounts SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE account_users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 public class AccountUser {
     @Id
@@ -44,6 +44,7 @@ public class AccountUser {
     private Long accountId;
 
     @Column(nullable = false)
+    @Enumerated(value = EnumType.ORDINAL)
     private AccountRole role;
 
     @Column(nullable = false, updatable = false)

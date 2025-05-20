@@ -6,16 +6,22 @@ import com.finsavvy.api.finsavvy_api.v1.dto.account.NewAccountDto;
 import com.finsavvy.api.finsavvy_api.v1.entities.User;
 import com.finsavvy.api.finsavvy_api.v1.entities.account.Account;
 import com.finsavvy.api.finsavvy_api.v1.entities.account.AccountUser;
+import com.finsavvy.api.finsavvy_api.v1.entities.account.BankAccountType;
+import com.finsavvy.api.finsavvy_api.v1.entities.account.CountryCurrency;
 import com.finsavvy.api.finsavvy_api.v1.exceptions.ResourceNotFoundException;
-import com.finsavvy.api.finsavvy_api.v1.repositories.AccountRepository;
-import com.finsavvy.api.finsavvy_api.v1.repositories.AccountUserRepository;
-import com.finsavvy.api.finsavvy_api.v1.repositories.UserRepository;
+import com.finsavvy.api.finsavvy_api.v1.repositories.*;
 import com.finsavvy.api.finsavvy_api.v1.services.AccountService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.TypeToken;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import static com.finsavvy.api.finsavvy_api.v1.enums.AccountRole.OWNER;
@@ -27,22 +33,36 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountUserRepository accountUserRepository;
+    private final BankAccountTypeRepository bankAccountTypeRepository;
+    private final CountryCurrencyRepository countryCurrencyRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        modelMapper.addMappings(new PropertyMap<Account, AccountDto>() {
+            @Override
+            protected void configure() {
+                map().setUserId(source.getUser().getId());
+            }
+        });
+    }
+
     @Override
+    @Transactional(readOnly = true)
     public List<AccountDto> getAccountsOfUser() {
-        return List.of();
-//        Long userId = getAuthenticatedUserId();
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-//
-//        List<Account> accounts = accountRepository.findByUser(user);
-//
-//        return accounts
-//                .stream()
-//                .map(account -> modelMapper.map(account, AccountDto.class))
-//                .toList();
+        Long userId = getAuthenticatedUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        List<Account> accounts = accountRepository.findByUserId(userId);
+
+      return accounts
+                .stream()
+                .map(account -> modelMapper.map(account, AccountDto.class))
+                .toList();
+
     }
 
     @Override
@@ -51,14 +71,23 @@ public class AccountServiceImpl implements AccountService {
         Long userId = getAuthenticatedUserId();
         User user = userRepository
                 .findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-//        Account account = modelMapper.map(newAccountDto, Account.class);
+        String bankAccountTypeUUID = newAccountDto.getBankAccountTypeUUID();
+        BankAccountType bankAccountType = bankAccountTypeRepository
+                .findByUuid(bankAccountTypeUUID)
+                .orElseThrow(() -> new ResourceNotFoundException("Bank Type not found"));
+
+        String countryCurrencyUUID = newAccountDto.getCountryCurrencyUUID();
+        CountryCurrency countryCurrency = countryCurrencyRepository
+                .findByUuid(countryCurrencyUUID)
+                .orElseThrow(() -> new ResourceNotFoundException("Currency not found"));
+
         Account account = Account.builder()
-                .name(newAccountDto.getName())
                 .bankName(newAccountDto.getBankName())
-                .currencyId(newAccountDto.getCurrencyId())
-                .owner(user)
+                .user(user)
+                .bankAccountType(bankAccountType)
+                .countryCurrency(countryCurrency)
                 .build();
         Account newAccount = accountRepository.save(account);
 
@@ -74,7 +103,7 @@ public class AccountServiceImpl implements AccountService {
         AccountDto accountDto = modelMapper.map(newAccount, AccountDto.class);
         AccountUserDto accountUserDto = modelMapper.map(newAccountUser, AccountUserDto.class);
         accountDto.setAccountUsers(List.of(accountUserDto));
-        return  accountDto;
+        return accountDto;
     }
 
     @Override

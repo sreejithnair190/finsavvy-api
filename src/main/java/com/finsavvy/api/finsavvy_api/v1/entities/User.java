@@ -49,7 +49,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.ORDINAL)
     private List<Role> userRoles;
 
-    @Column(nullable = false, length = 1)
+    @Column(nullable = false)
     private Boolean is2FAEnabled = false;
 
     @Column(nullable = false, updatable = false)
@@ -61,7 +61,7 @@ public class User implements UserDetails {
 
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Account> accounts;
 

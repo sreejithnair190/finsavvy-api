@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.finsavvy.api.finsavvy_api.v1.entities.User;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.*;
@@ -17,7 +18,20 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "accounts")
+@Table(
+        name = "accounts",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "unique_bank", columnNames = {
+                        "bank_account_type_id",
+                        "user_id",
+                        "bankName"
+                })
+        },
+        indexes = {
+                @Index(name = "idx_user_account", columnList = "user_id"),
+                @Index(name = "idx_user_account_uuid", columnList = "uuid,user_id")
+        }
+)
 @SQLDelete(sql = "UPDATE accounts SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 public class Account {
@@ -28,16 +42,20 @@ public class Account {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
-    private User owner;
+    private User user;
 
-    @Column(nullable = false)
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_account_type_id", nullable = false)
+    @JsonBackReference
+    private BankAccountType bankAccountType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "country_currency_id", nullable = false)
+    @JsonBackReference
+    private CountryCurrency countryCurrency;
 
     @Column(nullable = false)
     private String bankName;
-
-    @Column(nullable = false)
-    private Long currencyId;
 
     @Column(nullable = false, unique = true)
     @UuidGenerator
