@@ -5,6 +5,8 @@ import com.finsavvy.api.finsavvy_api.v1.dto.account.AccountDto;
 import com.finsavvy.api.finsavvy_api.v1.dto.account.NewAccountDto;
 import com.finsavvy.api.finsavvy_api.v1.services.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +21,17 @@ public class AccountController {
 
     private final AccountService accountService;
 
-//    TODO: Add Pagination, Sorting, Search and Filter
+//    TODO: Add Search and Filter
     @GetMapping
-    public ResponseEntity<ApiResponse<List<AccountDto>>> getAccountsOfUser() {
-        List<AccountDto> accounts = accountService.getAccountsOfUser();
-        ApiResponse<List<AccountDto>> apiResponse = new ApiResponse<>(
+    public ResponseEntity<ApiResponse<Page<AccountDto>>> getAccountsOfUser(
+            @RequestParam(defaultValue = "1") Integer pageNumber,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @RequestParam(defaultValue = "") String search
+    ) {
+        Page<AccountDto> accounts = accountService.getAccountsOfUser(pageNumber, size, sortBy, sortDir);
+        ApiResponse<Page<AccountDto>> apiResponse = new ApiResponse<>(
           accounts,
           "Accounts of user successfully retrieved"
         );
@@ -37,7 +45,7 @@ public class AccountController {
                 accountDto,
                 "Account created successfully"
         );
-        return ResponseEntity.ok(apiResponse);
+        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")

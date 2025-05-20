@@ -18,6 +18,10 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,17 +56,21 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AccountDto> getAccountsOfUser() {
+    public Page<AccountDto> getAccountsOfUser(Integer pageNumber, Integer size, String sortBy, String sortDir) {
+//        TODO: Build a common Pageable generator function
+        Sort.Direction direction = (sortDir.equals("desc")) ? Sort.Direction.DESC : Sort.Direction.ASC;
+//        TODO: Check if sortBy exist in the column else gracefully handle the exception
+        Sort sort = Sort.by(direction, sortBy, "createdAt");
+        pageNumber = (pageNumber > 0) ? --pageNumber : 0;
+        Pageable pageable = PageRequest.of(pageNumber, size, sort);
+
         Long userId = getAuthenticatedUserId();
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        List<Account> accounts = accountRepository.findByUserId(userId);
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-      return accounts
-                .stream()
-                .map(account -> modelMapper.map(account, AccountDto.class))
-                .toList();
+        Page<Account> accounts = accountRepository.findByUserId(userId, pageable);
 
+        return accounts.map(account -> modelMapper.map(account, AccountDto.class));
     }
 
     @Override
