@@ -1,6 +1,7 @@
 package com.finsavvy.api.finsavvy_api.v1.entities.account;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.finsavvy.api.finsavvy_api.v1.entities.Budget;
 import com.finsavvy.api.finsavvy_api.v1.entities.User;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
@@ -52,7 +53,7 @@ public class Account {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_currency_id", nullable = false)
     @JsonBackReference
-    private CountryCurrency countryCurrency;
+    private Budget.CountryCurrency countryCurrency;
 
     @Column(nullable = false)
     private String bankName;

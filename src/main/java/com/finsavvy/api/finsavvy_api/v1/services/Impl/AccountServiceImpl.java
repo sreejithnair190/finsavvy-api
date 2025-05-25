@@ -3,20 +3,19 @@ package com.finsavvy.api.finsavvy_api.v1.services.Impl;
 import com.finsavvy.api.finsavvy_api.v1.dto.account.AccountDto;
 import com.finsavvy.api.finsavvy_api.v1.dto.account.AccountUserDto;
 import com.finsavvy.api.finsavvy_api.v1.dto.account.NewAccountDto;
+import com.finsavvy.api.finsavvy_api.v1.entities.Budget;
 import com.finsavvy.api.finsavvy_api.v1.entities.User;
 import com.finsavvy.api.finsavvy_api.v1.entities.account.Account;
 import com.finsavvy.api.finsavvy_api.v1.entities.account.AccountUser;
 import com.finsavvy.api.finsavvy_api.v1.entities.account.BankAccountType;
-import com.finsavvy.api.finsavvy_api.v1.entities.account.CountryCurrency;
 import com.finsavvy.api.finsavvy_api.v1.exceptions.ResourceNotFoundException;
 import com.finsavvy.api.finsavvy_api.v1.repositories.*;
 import com.finsavvy.api.finsavvy_api.v1.services.AccountService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
+import org.hibernate.mapping.Array;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,11 +24,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import static com.finsavvy.api.finsavvy_api.v1.enums.AccountRole.OWNER;
 import static com.finsavvy.api.finsavvy_api.v1.utils.Auth.getAuthenticatedUserId;
+import static com.finsavvy.api.finsavvy_api.v1.utils.Util.generatePageable;
 
 @Service
 @RequiredArgsConstructor
@@ -57,12 +56,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(readOnly = true)
     public Page<AccountDto> getAccountsOfUser(Integer pageNumber, Integer size, String sortBy, String sortDir) {
-//        TODO: Build a common Pageable generator function
-        Sort.Direction direction = (sortDir.equals("desc")) ? Sort.Direction.DESC : Sort.Direction.ASC;
-//        TODO: Check if sortBy exist in the column else gracefully handle the exception
-        Sort sort = Sort.by(direction, sortBy, "createdAt");
-        pageNumber = (pageNumber > 0) ? --pageNumber : 0;
-        Pageable pageable = PageRequest.of(pageNumber, size, sort);
+        String[] sortable = {"id", "bank_name"};
+        Pageable pageable = generatePageable(pageNumber, size, sortBy, sortDir, sortable);
 
         Long userId = getAuthenticatedUserId();
         User user = userRepository.findById(userId)
@@ -87,7 +82,7 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Bank Type not found"));
 
         String countryCurrencyUUID = newAccountDto.getCountryCurrencyUUID();
-        CountryCurrency countryCurrency = countryCurrencyRepository
+        Budget.CountryCurrency countryCurrency = countryCurrencyRepository
                 .findByUuid(countryCurrencyUUID)
                 .orElseThrow(() -> new ResourceNotFoundException("Currency not found"));
 

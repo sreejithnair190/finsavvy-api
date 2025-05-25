@@ -1,5 +1,6 @@
 package com.finsavvy.api.finsavvy_api.v1.dto.account;
 
+import com.finsavvy.api.finsavvy_api.v1.dto.CountryCurrencyDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
